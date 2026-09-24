@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบร้านค้าออนไลน์ (E-commerce)</title>
+    
+    <!-- Google Fonts for Thai Language -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles for things Tailwind is too verbose for */
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 300ms ease-out;
+        }
+        .toast-exit {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast-exit-active {
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 300ms ease-in;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #22c55e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hide scrollbar for clean look in form */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-brand-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span class="font-bold text-xl tracking-tight text-gray-900">Mardi<span class="text-brand-600">Shop</span></span>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <button id="nav-store" class="nav-btn active px-3 py-2 rounded-md text-sm font-medium text-brand-600 bg-brand-50 transition-colors" onclick="switchView('store')">
+                        หน้าร้าน
+                    </button>
+                    <button id="nav-post" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors" onclick="switchView('post')">
+                        + โพสต์ขาย
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+        
+        <!-- Loading Overlay for initial setup -->
+        <div id="initial-loader" class="absolute inset-0 z-40 bg-gray-50 flex flex-col items-center justify-center rounded-lg min-h-[50vh]">
+            <div class="loader mb-4"></div>
+            <p class="text-gray-500 font-medium">กำลังเตรียมระบบ...</p>
+        </div>
+
+        <!-- View 1: Storefront (Grid of Products) -->
+        <section id="view-store" class="view-section active">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">สินค้าล่าสุด</h1>
+                    <p class="text-sm text-gray-500 mt-1">เลือกซื้อสินค้าที่ถูกใจคุณจากผู้ขายของเรา</p>
+                </div>
+                <div class="text-sm text-gray-500">
+                    มีสินค้า <span id="product-count" class="font-bold text-brand-600">0</span> รายการ
+                </div>
+            </div>
+
+            <!-- Products Grid Container -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Products will be injected here via JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100 text-center">
+                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">ยังไม่มีสินค้า</h3>
+                <p class="text-gray-500 mb-4">มาเป็นคนแรกที่โพสต์ขายสินค้ากันเถอะ!</p>
+                <button onclick="switchView('post')" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
+                    โพสต์ขายสินค้าเลย
+                </button>
+            </div>
+        </section>
+
+        <!-- View 2: Post Product Form -->
+        <section id="view-post" class="view-section hidden max-w-2xl mx-auto">
+            <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+                <div class="px-6 py-8 sm:p-10">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">โพสต์ขายสินค้าใหม่</h2>
+                    <p class="text-gray-500 mb-8 text-sm">กรอกข้อมูลให้ครบถ้วนเพื่อให้สินค้าของคุณน่าสนใจยิ่งขึ้น</p>
+
+                    <form id="post-product-form" class="space-y-6">
+                        
+                        <!-- Image URL -->
+                        <div>
+                            <label for="image_url" class="block text-sm font-medium text-gray-700">URL รูปภาพสินค้า</label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </span>
+                                <input type="url" name="image_url" id="image_url" required class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-brand-500 focus:border-brand-500 sm:text-sm" placeholder="https://example.com/image.jpg" onchange="previewImage()">
+                            </div>
+                            
+                            <!-- Image Preview Area -->
+                            <div id="image-preview-container" class="mt-3 hidden rounded-lg border-2 border-dashed border-gray-300 p-2 text-center relative h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
+                                <img id="image-preview" src="" alt="Preview" class="max-h-full max-w-full object-contain">
+                                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                    <span class="text-white text-sm font-medium">ตัวอย่างรูปภาพ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Name -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">ชื่อสินค้า <span class="text-red-500">*</span></label>
+                            <div class="mt-1">
+                                <input type="text" name="name" id="name" required class="shadow-sm focus:ring-brand-500 focus:border-brand-500 block w-full sm:text-sm border-gray-300 px-3 py-2 border rounded-md" placeholder="เช่น กระเป๋าผ้าแคนวาส มินิมอล">
+                            </div>
+                        </div>
+
+                        <!-- Price -->
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700">ราคา (บาท) <span class="text-red-500">*</span></label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">฿</span>
+                                </div>
+                                <input type="number" name="price" id="price" required min="0" step="0.01" class="focus:ring-brand-500 focus:border-brand-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 px-3 py-2 border rounded-md" placeholder="0.00">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm" id="price-currency">THB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700">รายละเอียดสินค้า</label>
+                            <div class="mt-1">
+                                <textarea id="description" name="description" rows="4" class="shadow-sm focus:ring-brand-500 focus:border-brand-500 block w-full sm:text-sm border border-gray-300 rounded-md p-3" placeholder="อธิบายจุดเด่น สภาพสินค้า หรือข้อมูลอื่นๆ..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4">
+                            <button type="submit" id="submit-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors">
+                                <span id="submit-text">ลงขายสินค้า</span>
+                                <div id="submit-loader" class="hidden ml-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-center">
+                    <p class="text-xs text-gray-500">ข้อมูลของคุณจะถูกบันทึกอย่างปลอดภัย</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Template for Product Card (used in JS) -->
+    <template id="product-card-template">
+        <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full transform hover:-translate-y-1">
+            <div class="relative w-full pb-[100%] overflow-hidden bg-gray-100">
+                <!-- Using pb-[100%] trick for 1:1 aspect ratio container -->
+                <img src="" alt="" class="card-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <svg class="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </div>
+            </div>
+            <div class="p-4 flex flex-col flex-grow">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="card-title text-lg font-semibold text-gray-900 line-clamp-2 leading-tight"></h3>
+                </div>
+                <p class="card-desc text-sm text-gray-500 line-clamp-3 mb-4 flex-grow"></p>
+                <div class="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span class="card-price text-xl font-bold text-brand-600"></span>
+                    <span class="card-date text-xs text-gray-400"></span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global State
+        const state = {
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-ecommerce-app',
+            db: null,
+            auth: null,
+            user: null,
+            productsCollectionName: 'products',
+            products: [] // Store products in memory to sort
+        };
+
+        // DOM Elements
+        const elements = {
+            viewStore: document.getElementById('view-store'),
+            viewPost: document.getElementById('view-post'),
+            navStore: document.getElementById('nav-store'),
+            navPost: document.getElementById('nav-post'),
+            form: document.getElementById('post-product-form'),
+            submitBtn: document.getElementById('submit-btn'),
+            submitText: document.getElementById('submit-text'),
+            submitLoader: document.getElementById('submit-loader'),
+            productsGrid: document.getElementById('products-grid'),
+            emptyState: document.getElementById('empty-state'),
+            productCount: document.getElementById('product-count'),
+            imageUrlInput: document.getElementById('image_url'),
+            imagePreviewContainer: document.getElementById('image-preview-container'),
+            imagePreview: document.getElementById('image-preview'),
+            initialLoader: document.getElementById('initial-loader')
+        };
+
+        // UI Navigation
+        window.switchView = (viewId) => {
+            if (viewId === 'store') {
+                elements.viewStore.classList.remove('hidden');
+                elements.viewPost.classList.add('hidden');
+                
+                // Update Nav styles
+                elements.navStore.classList.replace('text-gray-600', 'text-brand-600');
+                elements.navStore.classList.replace('hover:text-gray-900', 'bg-brand-50');
+                elements.navStore.classList.add('bg-brand-50', 'text-brand-600');
+                
+                elements.navPost.classList.remove('bg-brand-50', 'text-brand-600');
+                elements.navPost.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-50');
+            } else {
+                elements.viewStore.classList.add('hidden');
+                elements.viewPost.classList.remove('hidden');
+                
+                // Update Nav styles
+                elements.navPost.classList.replace('text-gray-600', 'text-brand-600');
+                elements.navPost.classList.replace('hover:text-gray-900', 'bg-brand-50');
+                elements.navPost.classList.add('bg-brand-50', 'text-brand-600');
+                
+                elements.navStore.classList.remove('bg-brand-50', 'text-brand-600');
+                elements.navStore.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-50');
+            }
+        };
+
+        // Image Preview Logic
+        window.previewImage = () => {
+            const url = elements.imageUrlInput.value;
+            if (url) {
+                elements.imagePreview.src = url;
+                elements.imagePreviewContainer.classList.remove('hidden');
+                
+                // Handle invalid image URL
+                elements.imagePreview.onerror = function() {
+                    this.src = `https://placehold.co/400x400/f8fafc/94a3b8?text=Image+Not+Found`;
+                };
+            } else {
+                elements.imagePreviewContainer.classList.add('hidden');
+                elements.imagePreview.src = '';
+            }
+        };
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
+            const icon = type === 'success' 
+                ? `<svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
+                : `<svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            toast.className = `flex items-center p-4 border rounded-lg shadow-lg pointer-events-auto transform transition-all duration-300 translate-y-full opacity-0 ${bgClass}`;
+            toast.innerHTML = `${icon} <span class="text-sm font-medium">${message}</span>`;
+            
+            toastContainer.appendChild(toast);
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            });
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Format Currency
+        const formatPrice = (price) => {
+            return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(price);
+        };
+
+        // Format Date
+        const formatDate = (timestamp) => {
+            if (!timestamp) return 'เพิ่งโพสต์';
+            // Handle Firestore timestamp or JS Date
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return new Intl.DateTimeFormat('th-TH', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        };
+
+        // Render Products
+        function renderProducts() {
+            elements.productsGrid.innerHTML = '';
+            elements.productCount.textContent = state.products.length;
+
+            if (state.products.length === 0) {
+                elements.productsGrid.classList.add('hidden');
+                elements.emptyState.classList.remove('hidden');
+                elements.emptyState.classList.add('flex');
+                return;
+            }
+
+            elements.productsGrid.classList.remove('hidden');
+            elements.emptyState.classList.add('hidden');
+            elements.emptyState.classList.remove('flex');
+
+            const template = document.getElementById('product-card-template');
+
+            // Sort products by creation time (newest first)
+            // Handling case where server timestamp might be null locally initially
+            const sortedProducts = [...state.products].sort((a, b) => {
+                const timeA = a.createdAt ? (a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt) : Date.now();
+                const timeB = b.createdAt ? (b.createdAt.toMillis ? b.createdAt.toMillis() : b.createdAt) : Date.now();
+                return timeB - timeA;
+            });
+
+            sortedProducts.forEach(product => {
+                const clone = template.content.cloneNode(true);
+                
+                const img = clone.querySelector('.card-img');
+                img.src = product.imageUrl || `https://placehold.co/400x400/f8fafc/94a3b8?text=${encodeURIComponent(product.name)}`;
+                img.onerror = function() {
+                    this.src = `https://placehold.co/400x400/f8fafc/94a3b8?text=Image+Error`;
+                };
+                img.alt = product.name;
+
+                clone.querySelector('.card-title').textContent = product.name;
+                
+                const descEl = clone.querySelector('.card-desc');
+                if (product.description) {
+                    descEl.textContent = product.description;
+                } else {
+                    descEl.textContent = "ไม่มีรายละเอียดสินค้า";
+                    descEl.classList.add('italic', 'text-gray-400');
+                }
+
+                clone.querySelector('.card-price').textContent = formatPrice(product.price);
+                clone.querySelector('.card-date').textContent = formatDate(product.createdAt);
+
+                elements.productsGrid.appendChild(clone);
+            });
+        }
+
+        // Initialize App & Firebase
+        async function init() {
+            try {
+                // Parse Config
+                const firebaseConfig = typeof __firebase_config !== 'undefined' 
+                    ? JSON.parse(__firebase_config) 
+                    : null;
+
+                if (!firebaseConfig) {
+                    throw new Error("Firebase configuration is missing.");
+                }
+
+                // Initialize Firebase Apps
+                const app = initializeApp(firebaseConfig);
+                state.db = getFirestore(app);
+                state.auth = getAuth(app);
+
+                // Authentication (Strict Requirement)
+                const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                
+                if (customToken) {
+                    await signInWithCustomToken(state.auth, customToken);
+                } else {
+                    await signInAnonymously(state.auth);
+                }
+
+                state.user = state.auth.currentUser;
+                if (!state.user) throw new Error("Authentication failed.");
+
+                // Setup Firestore Listener
+                setupFirestoreListener();
+
+                // Setup Form Handler
+                setupFormHandler();
+
+            } catch (error) {
+                console.error("Initialization Error:", error);
+                showToast("ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่", "error");
+                elements.initialLoader.innerHTML = `<p class="text-red-500 font-medium">เกิดข้อผิดพลาดในการโหลดระบบ</p><p class="text-sm text-gray-500 mt-2">${error.message}</p>`;
+            }
+        }
+
+        // Setup Real-time Listener for Products
+        function setupFirestoreListener() {
+            if (!state.user || !state.db) return;
+
+            // Strict Path Rule: /artifacts/{appId}/public/data/{collectionName}
+            const productsRef = collection(state.db, 'artifacts', state.appId, 'public', 'data', state.productsCollectionName);
+
+            // Strict Rule: No complex queries (orderBy, where). Fetch all, sort in memory.
+            onSnapshot(productsRef, 
+                (snapshot) => {
+                    const newProducts = [];
+                    snapshot.forEach((doc) => {
+                        newProducts.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    state.products = newProducts;
+                    renderProducts();
+                    
+                    // Hide loader on first successful data load
+                    if (!elements.initialLoader.classList.contains('hidden')) {
+                        elements.initialLoader.classList.add('hidden');
+                    }
+                }, 
+                (error) => {
+                    console.error("Firestore Listener Error:", error);
+                    showToast("ไม่สามารถโหลดข้อมูลสินค้าได้", "error");
+                    // Ensure loader is hidden even on error so user isn't stuck
+                    elements.initialLoader.classList.add('hidden');
+                }
+            );
+        }
+
+        // Form Submission Handler
+        function setupFormHandler() {
+            elements.form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!state.user || !state.db) {
+                    showToast("คุณยังไม่ได้เชื่อมต่อระบบ ไม่สามารถโพสต์ได้", "error");
+                    return;
+                }
+
+                // Get Form Values
+                const formData = new FormData(elements.form);
+                const newProduct = {
+                    name: formData.get('name').trim(),
+                    price: parseFloat(formData.get('price')),
+                    description: formData.get('description').trim(),
+                    imageUrl: formData.get('image_url').trim(),
+                    sellerId: state.user.uid, // Store who posted it
+                    createdAt: serverTimestamp() // Use Firebase server time
+                };
+
+                // Basic Validation (HTML5 already handles 'required' and 'type', this is extra)
+                if (!newProduct.name || isNaN(newProduct.price)) {
+                    showToast("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error");
+                    return;
+                }
+
+                // UI Loading State
+                setLoadingState(true);
+
+                try {
+                    // Strict Path Rule
+                    const productsRef = collection(state.db, 'artifacts', state.appId, 'public', 'data', state.productsCollectionName);
+                    
+                    // Add Document
+                    await addDoc(productsRef, newProduct);
+                    
+                    showToast("โพสต์สินค้าสำเร็จ!", "success");
+                    
+                    // Reset Form and UI
+                    elements.form.reset();
+                    window.previewImage(); // clear preview
+                    switchView('store'); // Go back to store view
+                    
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                    showToast("เกิดข้อผิดพลาดในการโพสต์สินค้า", "error");
+                } finally {
+                    setLoadingState(false);
+                }
+            });
+        }
+
+        // Loading State Manager for Form Button
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                elements.submitBtn.disabled = true;
+                elements.submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                elements.submitText.textContent = 'กำลังโพสต์...';
+                elements.submitLoader.classList.remove('hidden');
+            } else {
+                elements.submitBtn.disabled = false;
+                elements.submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                elements.submitText.textContent = 'ลงขายสินค้า';
+                elements.submitLoader.classList.add('hidden');
+            }
+        }
+
+        // Run initialization on load
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
