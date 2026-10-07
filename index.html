@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบร้านค้าออนไลน์ (E-commerce)</title>
-    
-    <!-- Google Fonts for Thai Language -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>โปรแกรมคำนวณจัดไฟแนนซ์รถยนต์ / รถมอเตอร์ไซค์ (รวม VAT)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Sarabun) -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Prompt', 'sans-serif'],
+                        sans: ['Sarabun', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#095196',
                         }
                     }
                 }
@@ -33,541 +34,645 @@
         }
     </script>
     <style>
-        /* Custom Styles for things Tailwind is too verbose for */
-        body {
-            background-color: #f8fafc;
-            color: #1e293b;
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: white !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #e5e7eb !important;
+            }
         }
-        
-        .toast-enter {
-            transform: translateY(100%);
-            opacity: 0;
+        /* Custom scrollbar for schedule table */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-        .toast-enter-active {
-            transform: translateY(0);
-            opacity: 1;
-            transition: all 300ms ease-out;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
         }
-        .toast-exit {
-            transform: translateY(0);
-            opacity: 1;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
-        .toast-exit-active {
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 300ms ease-in;
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #22c55e;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Hide scrollbar for clean look in form */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <svg class="h-8 w-8 text-brand-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <span class="font-bold text-xl tracking-tight text-gray-900">Mardi<span class="text-brand-600">Shop</span></span>
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-slate-900 via-sky-900 to-slate-900 text-white shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-3 bg-sky-500/20 rounded-xl border border-sky-400/30 backdrop-blur-md">
+                        <i class="fa-solid fa-car text-2xl text-sky-400"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">คำนวณค่างวดจัดไฟแนนซ์รถ</h1>
+                        <p class="text-xs sm:text-sm text-sky-200">Auto & Motorcycle Finance Calculator (VAT Inclusive)</p>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <button id="nav-store" class="nav-btn active px-3 py-2 rounded-md text-sm font-medium text-brand-600 bg-brand-50 transition-colors" onclick="switchView('store')">
-                        หน้าร้าน
-                    </button>
-                    <button id="nav-post" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors" onclick="switchView('post')">
-                        + โพสต์ขาย
-                    </button>
+                <div class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                    <span>คำนวณตามมาตรฐานไฟแนนซ์ + VAT</span>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
-        
-        <!-- Loading Overlay for initial setup -->
-        <div id="initial-loader" class="absolute inset-0 z-40 bg-gray-50 flex flex-col items-center justify-center rounded-lg min-h-[50vh]">
-            <div class="loader mb-4"></div>
-            <p class="text-gray-500 font-medium">กำลังเตรียมระบบ...</p>
-        </div>
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Input Form -->
+            <div class="lg:col-span-5 space-y-6 no-print">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all duration-300 hover:shadow-md">
+                    <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center">
+                        <i class="fa-solid fa-sliders text-sky-600 mr-2.5"></i>
+                        ข้อมูลการจัดไฟแนนซ์
+                    </h2>
 
-        <!-- View 1: Storefront (Grid of Products) -->
-        <section id="view-store" class="view-section active">
-            <div class="flex justify-between items-end mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">สินค้าล่าสุด</h1>
-                    <p class="text-sm text-gray-500 mt-1">เลือกซื้อสินค้าที่ถูกใจคุณจากผู้ขายของเรา</p>
-                </div>
-                <div class="text-sm text-gray-500">
-                    มีสินค้า <span id="product-count" class="font-bold text-brand-600">0</span> รายการ
-                </div>
-            </div>
-
-            <!-- Products Grid Container -->
-            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Products will be injected here via JavaScript -->
-            </div>
-
-            <!-- Empty State -->
-            <div id="empty-state" class="hidden flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100 text-center">
-                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                <h3 class="text-lg font-medium text-gray-900 mb-1">ยังไม่มีสินค้า</h3>
-                <p class="text-gray-500 mb-4">มาเป็นคนแรกที่โพสต์ขายสินค้ากันเถอะ!</p>
-                <button onclick="switchView('post')" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
-                    โพสต์ขายสินค้าเลย
-                </button>
-            </div>
-        </section>
-
-        <!-- View 2: Post Product Form -->
-        <section id="view-post" class="view-section hidden max-w-2xl mx-auto">
-            <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
-                <div class="px-6 py-8 sm:p-10">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">โพสต์ขายสินค้าใหม่</h2>
-                    <p class="text-gray-500 mb-8 text-sm">กรอกข้อมูลให้ครบถ้วนเพื่อให้สินค้าของคุณน่าสนใจยิ่งขึ้น</p>
-
-                    <form id="post-product-form" class="space-y-6">
+                    <form id="calcForm" onsubmit="event.preventDefault(); calculateLoan();" class="space-y-4">
                         
-                        <!-- Image URL -->
+                        <!-- Vehicle Type Selector -->
                         <div>
-                            <label for="image_url" class="block text-sm font-medium text-gray-700">URL รูปภาพสินค้า</label>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                </span>
-                                <input type="url" name="image_url" id="image_url" required class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-brand-500 focus:border-brand-500 sm:text-sm" placeholder="https://example.com/image.jpg" onchange="previewImage()">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                ประเภทรถ <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="vehicleType" value="car" checked onchange="onVehicleTypeChange()" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border border-slate-200 bg-slate-50 peer-checked:bg-sky-50 peer-checked:border-sky-500 peer-checked:text-sky-700 font-semibold text-sm transition-all flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-car text-lg"></i>
+                                        <span>รถยนต์</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="vehicleType" value="motorcycle" onchange="onVehicleTypeChange()" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border border-slate-200 bg-slate-50 peer-checked:bg-sky-50 peer-checked:border-sky-500 peer-checked:text-sky-700 font-semibold text-sm transition-all flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-motorcycle text-lg"></i>
+                                        <span>มอเตอร์ไซค์</span>
+                                    </div>
+                                </label>
                             </div>
-                            
-                            <!-- Image Preview Area -->
-                            <div id="image-preview-container" class="mt-3 hidden rounded-lg border-2 border-dashed border-gray-300 p-2 text-center relative h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
-                                <img id="image-preview" src="" alt="Preview" class="max-h-full max-w-full object-contain">
-                                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                    <span class="text-white text-sm font-medium">ตัวอย่างรูปภาพ</span>
+                        </div>
+
+                        <!-- Vehicle Price -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                ราคารถ (บาท) <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative rounded-xl shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-baht-sign"></i>
+                                </div>
+                                <input type="number" id="vehiclePrice" value="800000" min="10000" step="5000" required
+                                    class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
+                                    placeholder="เช่น 800,000">
+                            </div>
+                        </div>
+
+                        <!-- Down Payment -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-sm font-semibold text-slate-700">
+                                    เงินดาวน์ <span class="text-rose-500">*</span>
+                                </label>
+                                <span class="text-xs text-sky-600 font-semibold" id="downAmountText">คิดเป็นเงิน 160,000 บาท</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-2 relative rounded-xl shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-coins"></i>
+                                    </div>
+                                    <input type="number" id="downPaymentValue" value="20" min="0" max="90" step="0.5" required
+                                        class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
+                                        placeholder="เช่น 20">
+                                </div>
+                                <div>
+                                    <select id="downPaymentUnit" onchange="calculateLoan()"
+                                        class="block w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-sm font-semibold transition-all">
+                                        <option value="percent" selected>เปอร์เซ็นต์ (%)</option>
+                                        <option value="amount">จำนวนเงิน (บาท)</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Product Name -->
+                        <!-- Loan Amount Display (Calculated) -->
+                        <div class="p-3 bg-slate-100/80 rounded-xl flex items-center justify-between text-xs sm:text-sm border border-slate-200">
+                            <span class="text-slate-600 font-medium">ยอดจัดไฟแนนซ์ (เงินกู้):</span>
+                            <span class="font-bold text-sky-700 text-base" id="loanAmountDisplay">0 บาท</span>
+                        </div>
+
+                        <!-- Interest Rate -->
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">ชื่อสินค้า <span class="text-red-500">*</span></label>
-                            <div class="mt-1">
-                                <input type="text" name="name" id="name" required class="shadow-sm focus:ring-brand-500 focus:border-brand-500 block w-full sm:text-sm border-gray-300 px-3 py-2 border rounded-md" placeholder="เช่น กระเป๋าผ้าแคนวาส มินิมอล">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                อัตราดอกเบี้ย (%) <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-2 relative rounded-xl shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-percent"></i>
+                                    </div>
+                                    <input type="number" id="interestRate" value="2.5" min="0.01" max="100" step="0.01" required
+                                        class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
+                                        placeholder="เช่น 2.5">
+                                </div>
+                                <div>
+                                    <select id="rateUnit" onchange="calculateLoan()"
+                                        class="block w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-sm font-semibold transition-all">
+                                        <option value="year" selected>ต่อปี (Flat)</option>
+                                        <option value="month">ต่อเดือน (Flat)</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Price -->
+                        <!-- Loan Term & Unit -->
                         <div>
-                            <label for="price" class="block text-sm font-medium text-gray-700">ราคา (บาท) <span class="text-red-500">*</span></label>
-                            <div class="mt-1 relative rounded-md shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">฿</span>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                ระยะเวลาผ่อนชำระ <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-2 relative rounded-xl shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-regular fa-clock"></i>
+                                    </div>
+                                    <input type="number" id="loanTerm" value="5" min="1" step="1" required
+                                        class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
+                                        placeholder="เช่น 5">
                                 </div>
-                                <input type="number" name="price" id="price" required min="0" step="0.01" class="focus:ring-brand-500 focus:border-brand-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 px-3 py-2 border rounded-md" placeholder="0.00">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm" id="price-currency">THB</span>
+                                <div>
+                                    <select id="termUnit" onchange="calculateLoan()"
+                                        class="block w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-sm font-semibold transition-all">
+                                        <option value="years" selected>ปี</option>
+                                        <option value="months">เดือน</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Description -->
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">รายละเอียดสินค้า</label>
-                            <div class="mt-1">
-                                <textarea id="description" name="description" rows="4" class="shadow-sm focus:ring-brand-500 focus:border-brand-500 block w-full sm:text-sm border border-gray-300 rounded-md p-3" placeholder="อธิบายจุดเด่น สภาพสินค้า หรือข้อมูลอื่นๆ..."></textarea>
+                        <!-- VAT Rate (%) Option -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                ภาษีมูลค่าเพิ่ม VAT (%) <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative rounded-xl shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <input type="number" id="vatRate" value="7" min="0" max="30" step="0.5" required
+                                    class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
+                                    placeholder="เช่น 7">
                             </div>
+                            <p class="text-xs text-slate-400 mt-1">สัญญาเช่าซื้อไฟแนนซ์ปกติจะมีการคิด VAT 7% จากค่างวด</p>
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="pt-4">
-                            <button type="submit" id="submit-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors">
-                                <span id="submit-text">ลงขายสินค้า</span>
-                                <div id="submit-loader" class="hidden ml-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            </button>
-                        </div>
+                        <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>คำนวณค่างวดจัดไฟแนนซ์</span>
+                        </button>
                     </form>
                 </div>
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-center">
-                    <p class="text-xs text-gray-500">ข้อมูลของคุณจะถูกบันทึกอย่างปลอดภัย</p>
-                </div>
             </div>
-        </section>
 
-    </main>
+            <!-- Right Column: Results & Analytics -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Print Header (Visible only when printing) -->
+                <div class="hidden print:block mb-6 border-b pb-4">
+                    <h1 class="text-2xl font-bold text-slate-900">รายงานตารางผ่อนชำระค่างวดจัดไฟแนนซ์ (รวม VAT)</h1>
+                    <p class="text-sm text-slate-600">สร้างจากระบบคำนวณค่างวดรถยนต์/รถมอเตอร์ไซค์ - วันที่: <span id="printDate"></span></p>
+                </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+                <!-- Summary Cards Container -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 print-card">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-chart-pie text-sky-600 mr-2.5"></i>
+                            สรุปผลการคำนวณจัดไฟแนนซ์
+                        </h2>
+                        <div class="flex items-center space-x-2 no-print">
+                            <button onclick="exportCSV()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition-colors flex items-center">
+                                <i class="fa-solid fa-file-csv mr-1.5 text-emerald-600"></i> Export CSV
+                            </button>
+                            <button onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition-colors flex items-center">
+                                <i class="fa-solid fa-print mr-1.5 text-slate-600"></i> พิมพ์ / PDF
+                            </button>
+                        </div>
+                    </div>
 
-    <!-- Template for Product Card (used in JS) -->
-    <template id="product-card-template">
-        <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full transform hover:-translate-y-1">
-            <div class="relative w-full pb-[100%] overflow-hidden bg-gray-100">
-                <!-- Using pb-[100%] trick for 1:1 aspect ratio container -->
-                <img src="" alt="" class="card-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                <div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <svg class="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    <!-- Metrics Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <!-- Monthly Payment Net (Incl. VAT) -->
+                        <div class="bg-gradient-to-br from-sky-50 to-blue-50/50 rounded-xl p-4 border border-sky-100">
+                            <span class="text-xs font-bold uppercase tracking-wider text-sky-700 block mb-1">ค่างวดต่อเดือน (รวม VAT)</span>
+                            <div class="text-2xl font-black text-sky-900" id="resMonthlyPayTotal">0 ฿</div>
+                            <div class="text-xs text-sky-600/80 mt-1" id="resMonthlyPayBreakdown">ก่อน VAT: 0 ฿ | VAT: 0 ฿</div>
+                        </div>
+
+                        <!-- Total Interest -->
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl p-4 border border-amber-100">
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-700 block mb-1">ดอกเบี้ยรวมทั้งหมด</span>
+                            <div class="text-2xl font-black text-amber-900" id="resTotalInterest">0 ฿</div>
+                            <div class="text-xs text-amber-600/80 mt-1" id="resSavedInterest">อัตราดอกเบี้ยคงที่ (Flat Rate)</div>
+                        </div>
+
+                        <!-- Total Payment Incl. VAT -->
+                        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-600 block mb-1">รวมยอดจ่ายสุทธิทั้งสัญญา</span>
+                            <div class="text-2xl font-black text-slate-800" id="resTotalPaidNet">0 ฿</div>
+                            <div class="text-xs text-slate-500 mt-1" id="resTotalVatSummary">รวมภาษี VAT สะสม: 0 ฿</div>
+                        </div>
+                    </div>
+
+                    <!-- Chart & Summary breakdown -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center border-t border-slate-100 pt-5">
+                        <div class="relative flex justify-center items-center h-48">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-sky-500 inline-block mr-2"></span>
+                                    ยอดจัดไฟแนนซ์ (เงินต้น)
+                                </span>
+                                <span class="font-bold text-slate-800" id="resPrincipalSummary">0 ฿</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-amber-500 inline-block mr-2"></span>
+                                    ดอกเบี้ยรวมตลอดสัญญา
+                                </span>
+                                <span class="font-bold text-slate-800" id="resInterestSummary">0 ฿</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                <span class="text-slate-500 flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block mr-2"></span>
+                                    ภาษีมูลค่าเพิ่ม (VAT) รวม
+                                </span>
+                                <span class="font-bold text-slate-800" id="resVatSummary">0 ฿</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                <span class="text-slate-500">ดอกเบี้ยลดต้นลดดอกแท้จริง (Effective Rate)</span>
+                                <span class="font-bold text-slate-800" id="resEffectiveRate">0% ต่อปี</span>
+                            </div>
+                            <div class="flex justify-between items-center text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
+                                <span class="font-medium text-xs sm:text-sm">ระยะเวลาผ่อนชำระ</span>
+                                <span class="font-bold text-sm sm:text-base" id="resActualTerm">0 ปี 0 เดือน</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="card-title text-lg font-semibold text-gray-900 line-clamp-2 leading-tight"></h3>
-                </div>
-                <p class="card-desc text-sm text-gray-500 line-clamp-3 mb-4 flex-grow"></p>
-                <div class="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span class="card-price text-xl font-bold text-brand-600"></span>
-                    <span class="card-date text-xs text-gray-400"></span>
-                </div>
+
             </div>
         </div>
-    </template>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        <!-- Amortization Schedule Table Section -->
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 print-card">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-2">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-list-ol text-sky-600 mr-2.5"></i>
+                        ตารางการผ่อนชำระและตัดดอกเบี้ยแบบลดต้นลดดอก (แสดงแยก VAT)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">แสดงสัดส่วนตัดเงินต้น ดอกเบี้ย และ VAT ในแต่ละงวดตามหลักสัญญาเช่าซื้อ (สคบ.)</p>
+                </div>
+                <div class="text-xs text-slate-500 font-medium">
+                    แสดงทั้งหมด <span id="tableRowsCount" class="font-bold text-sky-600">0</span> งวด
+                </div>
+            </div>
 
-        // Global State
-        const state = {
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-ecommerce-app',
-            db: null,
-            auth: null,
-            user: null,
-            productsCollectionName: 'products',
-            products: [] // Store products in memory to sort
-        };
+            <!-- Table Container -->
+            <div class="overflow-x-auto custom-scrollbar max-h-[500px] rounded-xl border border-slate-200">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 border-b border-slate-200">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-center">งวดที่</th>
+                            <th scope="col" class="px-3 py-3 text-right">เงินต้นคงเหลือต้นงวด</th>
+                            <th scope="col" class="px-3 py-3 text-right">ค่างวดก่อน VAT</th>
+                            <th scope="col" class="px-3 py-3 text-right text-indigo-600">VAT</th>
+                            <th scope="col" class="px-3 py-3 text-right text-sky-700">ค่างวดสุทธิ (รวม VAT)</th>
+                            <th scope="col" class="px-3 py-3 text-right text-amber-700">ดอกเบี้ย (Interest)</th>
+                            <th scope="col" class="px-3 py-3 text-right text-emerald-700">ตัดเงินต้น (Principal)</th>
+                            <th scope="col" class="px-3 py-3 text-right">เงินต้นคงเหลือปลายงวด</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleTableBody" class="divide-y divide-slate-100 bg-white">
+                        <!-- Table content dynamically injected -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-        // DOM Elements
-        const elements = {
-            viewStore: document.getElementById('view-store'),
-            viewPost: document.getElementById('view-post'),
-            navStore: document.getElementById('nav-store'),
-            navPost: document.getElementById('nav-post'),
-            form: document.getElementById('post-product-form'),
-            submitBtn: document.getElementById('submit-btn'),
-            submitText: document.getElementById('submit-text'),
-            submitLoader: document.getElementById('submit-loader'),
-            productsGrid: document.getElementById('products-grid'),
-            emptyState: document.getElementById('empty-state'),
-            productCount: document.getElementById('product-count'),
-            imageUrlInput: document.getElementById('image_url'),
-            imagePreviewContainer: document.getElementById('image-preview-container'),
-            imagePreview: document.getElementById('image-preview'),
-            initialLoader: document.getElementById('initial-loader')
-        };
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 no-print mt-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>หมายเหตุ: การคำนวณข้างต้นเป็นการคำนวณเบื้องต้นตามมาตรฐานการเช่าซื้อรถยนต์/รถมอเตอร์ไซค์ (รวมภาษีมูลค่าเพิ่ม VAT) ซึ่งยังไม่รวมประกันภัย พรบ. และค่าธรรมเนียมอื่นๆ</p>
+            <p class="mt-1">ระบบคำนวณค่างวดจัดไฟแนนซ์รถยนต์และรถมอเตอร์ไซค์ &copy; 2026</p>
+        </div>
+    </footer>
 
-        // UI Navigation
-        window.switchView = (viewId) => {
-            if (viewId === 'store') {
-                elements.viewStore.classList.remove('hidden');
-                elements.viewPost.classList.add('hidden');
-                
-                // Update Nav styles
-                elements.navStore.classList.replace('text-gray-600', 'text-brand-600');
-                elements.navStore.classList.replace('hover:text-gray-900', 'bg-brand-50');
-                elements.navStore.classList.add('bg-brand-50', 'text-brand-600');
-                
-                elements.navPost.classList.remove('bg-brand-50', 'text-brand-600');
-                elements.navPost.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-50');
-            } else {
-                elements.viewStore.classList.add('hidden');
-                elements.viewPost.classList.remove('hidden');
-                
-                // Update Nav styles
-                elements.navPost.classList.replace('text-gray-600', 'text-brand-600');
-                elements.navPost.classList.replace('hover:text-gray-900', 'bg-brand-50');
-                elements.navPost.classList.add('bg-brand-50', 'text-brand-600');
-                
-                elements.navStore.classList.remove('bg-brand-50', 'text-brand-600');
-                elements.navStore.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-50');
-            }
-        };
+    <script>
+        // Global variables
+        let paymentChartInstance = null;
+        let scheduleData = [];
 
-        // Image Preview Logic
-        window.previewImage = () => {
-            const url = elements.imageUrlInput.value;
-            if (url) {
-                elements.imagePreview.src = url;
-                elements.imagePreviewContainer.classList.remove('hidden');
-                
-                // Handle invalid image URL
-                elements.imagePreview.onerror = function() {
-                    this.src = `https://placehold.co/400x400/f8fafc/94a3b8?text=Image+Not+Found`;
-                };
-            } else {
-                elements.imagePreviewContainer.classList.add('hidden');
-                elements.imagePreview.src = '';
-            }
-        };
-
-        // Toast Notification System
-        function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const bgClass = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
-            const icon = type === 'success' 
-                ? `<svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
-                : `<svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
-            toast.className = `flex items-center p-4 border rounded-lg shadow-lg pointer-events-auto transform transition-all duration-300 translate-y-full opacity-0 ${bgClass}`;
-            toast.innerHTML = `${icon} <span class="text-sm font-medium">${message}</span>`;
-            
-            toastContainer.appendChild(toast);
-            
-            // Animate in
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-full', 'opacity-0');
-            });
-
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.classList.add('translate-y-full', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+        // Format Number Helper
+        function formatNum(num) {
+            return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
         }
 
-        // Format Currency
-        const formatPrice = (price) => {
-            return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(price);
-        };
+        // When switching vehicle type
+        function onVehicleTypeChange() {
+            const vehicleType = document.querySelector('input[name="vehicleType"]:checked').value;
+            const priceInput = document.getElementById('vehiclePrice');
+            const rateInput = document.getElementById('interestRate');
+            const termInput = document.getElementById('loanTerm');
+            const termUnit = document.getElementById('termUnit');
 
-        // Format Date
-        const formatDate = (timestamp) => {
-            if (!timestamp) return 'เพิ่งโพสต์';
-            // Handle Firestore timestamp or JS Date
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return new Intl.DateTimeFormat('th-TH', { 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(date);
-        };
+            if (vehicleType === 'car') {
+                priceInput.value = '800000';
+                rateInput.value = '2.5';
+                termInput.value = '5';
+                termUnit.value = 'years';
+                document.getElementById('rateUnit').value = 'year';
+            } else {
+                priceInput.value = '65000';
+                rateInput.value = '1.25'; // อัตราดอกเบี้ยมอเตอร์ไซค์มักนิยมคิดเป็น % ต่อเดือน
+                document.getElementById('rateUnit').value = 'month';
+                termInput.value = '30';
+                termUnit.value = 'months';
+            }
+            calculateLoan();
+        }
 
-        // Render Products
-        function renderProducts() {
-            elements.productsGrid.innerHTML = '';
-            elements.productCount.textContent = state.products.length;
+        // Auto calculate on input change
+        document.querySelectorAll('#calcForm input, #calcForm select').forEach(input => {
+            input.addEventListener('input', () => {
+                calculateLoan();
+            });
+        });
 
-            if (state.products.length === 0) {
-                elements.productsGrid.classList.add('hidden');
-                elements.emptyState.classList.remove('hidden');
-                elements.emptyState.classList.add('flex');
+        // Initialize Print Date
+        document.getElementById('printDate').innerText = new Date().toLocaleDateString('th-TH', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // Calculate Effective Interest Rate (IRR / Effective Rate) from Flat Rate & Term
+        function calculateEffectiveRate(loanAmount, monthlyPMTExclVat, totalMonths) {
+            let low = 0.00001;
+            let high = 1.0;
+            let monthlyIrr = 0;
+
+            for (let i = 0; i < 100; i++) {
+                let mid = (low + high) / 2;
+                let pmtCalc = loanAmount * (mid * Math.pow(1 + mid, totalMonths)) / (Math.pow(1 + mid, totalMonths) - 1);
+                
+                if (pmtCalc > monthlyPMTExclVat) {
+                    high = mid;
+                } else {
+                    low = mid;
+                }
+            }
+            monthlyIrr = (low + high) / 2;
+            return monthlyIrr; // Return monthly IRR rate
+        }
+
+        // Main Calculation Function
+        function calculateLoan() {
+            // Get Inputs
+            const vehiclePrice = parseFloat(document.getElementById('vehiclePrice').value) || 0;
+            const downValue = parseFloat(document.getElementById('downPaymentValue').value) || 0;
+            const downUnit = document.getElementById('downPaymentUnit').value;
+            
+            const rateInput = parseFloat(document.getElementById('interestRate').value) || 0;
+            const rateUnit = document.getElementById('rateUnit').value; // 'year' หรือ 'month'
+            const termInput = parseFloat(document.getElementById('loanTerm').value) || 0;
+            const termUnit = document.getElementById('termUnit').value;
+            const vatPct = parseFloat(document.getElementById('vatRate').value) || 0;
+
+            if (vehiclePrice <= 0 || termInput <= 0) {
                 return;
             }
 
-            elements.productsGrid.classList.remove('hidden');
-            elements.emptyState.classList.add('hidden');
-            elements.emptyState.classList.remove('flex');
-
-            const template = document.getElementById('product-card-template');
-
-            // Sort products by creation time (newest first)
-            // Handling case where server timestamp might be null locally initially
-            const sortedProducts = [...state.products].sort((a, b) => {
-                const timeA = a.createdAt ? (a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt) : Date.now();
-                const timeB = b.createdAt ? (b.createdAt.toMillis ? b.createdAt.toMillis() : b.createdAt) : Date.now();
-                return timeB - timeA;
-            });
-
-            sortedProducts.forEach(product => {
-                const clone = template.content.cloneNode(true);
-                
-                const img = clone.querySelector('.card-img');
-                img.src = product.imageUrl || `https://placehold.co/400x400/f8fafc/94a3b8?text=${encodeURIComponent(product.name)}`;
-                img.onerror = function() {
-                    this.src = `https://placehold.co/400x400/f8fafc/94a3b8?text=Image+Error`;
-                };
-                img.alt = product.name;
-
-                clone.querySelector('.card-title').textContent = product.name;
-                
-                const descEl = clone.querySelector('.card-desc');
-                if (product.description) {
-                    descEl.textContent = product.description;
-                } else {
-                    descEl.textContent = "ไม่มีรายละเอียดสินค้า";
-                    descEl.classList.add('italic', 'text-gray-400');
-                }
-
-                clone.querySelector('.card-price').textContent = formatPrice(product.price);
-                clone.querySelector('.card-date').textContent = formatDate(product.createdAt);
-
-                elements.productsGrid.appendChild(clone);
-            });
-        }
-
-        // Initialize App & Firebase
-        async function init() {
-            try {
-                // Parse Config
-                const firebaseConfig = typeof __firebase_config !== 'undefined' 
-                    ? JSON.parse(__firebase_config) 
-                    : null;
-
-                if (!firebaseConfig) {
-                    throw new Error("Firebase configuration is missing.");
-                }
-
-                // Initialize Firebase Apps
-                const app = initializeApp(firebaseConfig);
-                state.db = getFirestore(app);
-                state.auth = getAuth(app);
-
-                // Authentication (Strict Requirement)
-                const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                
-                if (customToken) {
-                    await signInWithCustomToken(state.auth, customToken);
-                } else {
-                    await signInAnonymously(state.auth);
-                }
-
-                state.user = state.auth.currentUser;
-                if (!state.user) throw new Error("Authentication failed.");
-
-                // Setup Firestore Listener
-                setupFirestoreListener();
-
-                // Setup Form Handler
-                setupFormHandler();
-
-            } catch (error) {
-                console.error("Initialization Error:", error);
-                showToast("ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่", "error");
-                elements.initialLoader.innerHTML = `<p class="text-red-500 font-medium">เกิดข้อผิดพลาดในการโหลดระบบ</p><p class="text-sm text-gray-500 mt-2">${error.message}</p>`;
-            }
-        }
-
-        // Setup Real-time Listener for Products
-        function setupFirestoreListener() {
-            if (!state.user || !state.db) return;
-
-            // Strict Path Rule: /artifacts/{appId}/public/data/{collectionName}
-            const productsRef = collection(state.db, 'artifacts', state.appId, 'public', 'data', state.productsCollectionName);
-
-            // Strict Rule: No complex queries (orderBy, where). Fetch all, sort in memory.
-            onSnapshot(productsRef, 
-                (snapshot) => {
-                    const newProducts = [];
-                    snapshot.forEach((doc) => {
-                        newProducts.push({
-                            id: doc.id,
-                            ...doc.data()
-                        });
-                    });
-                    
-                    state.products = newProducts;
-                    renderProducts();
-                    
-                    // Hide loader on first successful data load
-                    if (!elements.initialLoader.classList.contains('hidden')) {
-                        elements.initialLoader.classList.add('hidden');
-                    }
-                }, 
-                (error) => {
-                    console.error("Firestore Listener Error:", error);
-                    showToast("ไม่สามารถโหลดข้อมูลสินค้าได้", "error");
-                    // Ensure loader is hidden even on error so user isn't stuck
-                    elements.initialLoader.classList.add('hidden');
-                }
-            );
-        }
-
-        // Form Submission Handler
-        function setupFormHandler() {
-            elements.form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                if (!state.user || !state.db) {
-                    showToast("คุณยังไม่ได้เชื่อมต่อระบบ ไม่สามารถโพสต์ได้", "error");
-                    return;
-                }
-
-                // Get Form Values
-                const formData = new FormData(elements.form);
-                const newProduct = {
-                    name: formData.get('name').trim(),
-                    price: parseFloat(formData.get('price')),
-                    description: formData.get('description').trim(),
-                    imageUrl: formData.get('image_url').trim(),
-                    sellerId: state.user.uid, // Store who posted it
-                    createdAt: serverTimestamp() // Use Firebase server time
-                };
-
-                // Basic Validation (HTML5 already handles 'required' and 'type', this is extra)
-                if (!newProduct.name || isNaN(newProduct.price)) {
-                    showToast("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง", "error");
-                    return;
-                }
-
-                // UI Loading State
-                setLoadingState(true);
-
-                try {
-                    // Strict Path Rule
-                    const productsRef = collection(state.db, 'artifacts', state.appId, 'public', 'data', state.productsCollectionName);
-                    
-                    // Add Document
-                    await addDoc(productsRef, newProduct);
-                    
-                    showToast("โพสต์สินค้าสำเร็จ!", "success");
-                    
-                    // Reset Form and UI
-                    elements.form.reset();
-                    window.previewImage(); // clear preview
-                    switchView('store'); // Go back to store view
-                    
-                } catch (error) {
-                    console.error("Error adding document: ", error);
-                    showToast("เกิดข้อผิดพลาดในการโพสต์สินค้า", "error");
-                } finally {
-                    setLoadingState(false);
-                }
-            });
-        }
-
-        // Loading State Manager for Form Button
-        function setLoadingState(isLoading) {
-            if (isLoading) {
-                elements.submitBtn.disabled = true;
-                elements.submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-                elements.submitText.textContent = 'กำลังโพสต์...';
-                elements.submitLoader.classList.remove('hidden');
+            // Calculate Down Payment Amount & Loan Amount
+            let downPaymentAmount = 0;
+            if (downUnit === 'percent') {
+                downPaymentAmount = (vehiclePrice * downValue) / 100;
+                document.getElementById('downAmountText').innerText = `คิดเป็นเงิน ${formatNum(downPaymentAmount)} บาท`;
             } else {
-                elements.submitBtn.disabled = false;
-                elements.submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                elements.submitText.textContent = 'ลงขายสินค้า';
-                elements.submitLoader.classList.add('hidden');
+                downPaymentAmount = downValue;
+                const percentVal = vehiclePrice > 0 ? ((downValue / vehiclePrice) * 100).toFixed(1) : 0;
+                document.getElementById('downAmountText').innerText = `คิดเป็น ${percentVal}% ของราคารถ`;
             }
+
+            const loanAmount = Math.max(0, vehiclePrice - downPaymentAmount);
+            document.getElementById('loanAmountDisplay').innerText = `${formatNum(loanAmount)} บาท`;
+
+            if (loanAmount <= 0) {
+                return;
+            }
+
+            // Calculate Total Months & Years
+            const totalMonths = termUnit === 'years' ? Math.round(termInput * 12) : Math.round(termInput);
+            const totalYears = totalMonths / 12;
+
+            // Calculate Annual Flat Rate
+            const annualFlatRate = rateUnit === 'year' ? rateInput : rateInput * 12;
+
+            // Finance Flat Rate Calculation (Excluding VAT)
+            const totalInterestPaid = loanAmount * (annualFlatRate / 100) * totalYears;
+            const totalPaidExclVat = loanAmount + totalInterestPaid;
+            const monthlyPaymentExclVat = totalPaidExclVat / totalMonths;
+
+            // VAT Calculations
+            const monthlyVatAmount = monthlyPaymentExclVat * (vatPct / 100);
+            const monthlyPaymentInclVat = monthlyPaymentExclVat + monthlyVatAmount;
+            
+            const totalVatPaid = monthlyVatAmount * totalMonths;
+            const totalPaidInclVat = totalPaidExclVat + totalVatPaid;
+
+            // Calculate Effective Annual Interest Rate for Amortization Schedule (สคบ. Standard)
+            const monthlyEffectiveRate = calculateEffectiveRate(loanAmount, monthlyPaymentExclVat, totalMonths);
+            const annualEffectiveRate = monthlyEffectiveRate * 12 * 100;
+
+            // Generate Effective Rate Amortization Schedule
+            scheduleData = [];
+            let currentBalance = loanAmount;
+
+            for (let month = 1; month <= totalMonths; month++) {
+                let startBalance = currentBalance;
+                let monthlyInterest = startBalance * monthlyEffectiveRate;
+                let principalPaid = monthlyPaymentExclVat - monthlyInterest;
+
+                if (month === totalMonths) {
+                    // Last month adjustment to clear remaining exact balance
+                    principalPaid = startBalance;
+                    monthlyInterest = monthlyPaymentExclVat - principalPaid;
+                    currentBalance = 0;
+                } else {
+                    currentBalance = startBalance - principalPaid;
+                }
+
+                scheduleData.push({
+                    month: month,
+                    startBalance: startBalance,
+                    paymentExclVat: monthlyPaymentExclVat,
+                    vat: monthlyVatAmount,
+                    paymentInclVat: monthlyPaymentInclVat,
+                    interest: monthlyInterest,
+                    principal: principalPaid,
+                    endBalance: Math.max(0, currentBalance)
+                });
+            }
+
+            // Calculations for UI Display
+            const actualYears = Math.floor(totalMonths / 12);
+            const remainingMonths = totalMonths % 12;
+            let termString = "";
+            if (actualYears > 0) termString += `${actualYears} ปี `;
+            if (remainingMonths > 0) termString += `${remainingMonths} เดือน`;
+            if (totalMonths === 0) termString = "0 เดือน";
+
+            // Update DOM Results Summary
+            document.getElementById('resMonthlyPayTotal').innerText = formatNum(monthlyPaymentInclVat) + ' ฿';
+            document.getElementById('resMonthlyPayBreakdown').innerText = `ก่อน VAT: ${formatNum(monthlyPaymentExclVat)} ฿ | VAT (${vatPct}%): ${formatNum(monthlyVatAmount)} ฿`;
+
+            document.getElementById('resTotalInterest').innerText = formatNum(totalInterestPaid) + ' ฿';
+            document.getElementById('resSavedInterest').innerText = `คิดเป็น ${annualFlatRate.toFixed(2)}% ต่อปี (Flat Rate)`;
+
+            document.getElementById('resTotalPaidNet').innerText = formatNum(totalPaidInclVat) + ' ฿';
+            document.getElementById('resTotalVatSummary').innerText = `รวม VAT ${vatPct}% สะสม: ${formatNum(totalVatPaid)} ฿ (${totalMonths} งวด)`;
+
+            document.getElementById('resPrincipalSummary').innerText = formatNum(loanAmount) + ' ฿';
+            document.getElementById('resInterestSummary').innerText = formatNum(totalInterestPaid) + ' ฿';
+            document.getElementById('resVatSummary').innerText = formatNum(totalVatPaid) + ' ฿';
+            
+            document.getElementById('resEffectiveRate').innerText = `~${annualEffectiveRate.toFixed(2)}% ต่อปี`;
+            document.getElementById('resActualTerm').innerText = termString;
+
+            // Render Table
+            renderScheduleTable(scheduleData);
+
+            // Render Chart
+            renderChart(loanAmount, totalInterestPaid, totalVatPaid);
         }
 
-        // Run initialization on load
-        window.addEventListener('DOMContentLoaded', init);
+        // Render Schedule Table
+        function renderScheduleTable(data) {
+            const tbody = document.getElementById('scheduleTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('tableRowsCount').innerText = data.length;
 
+            data.forEach((row) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition-colors border-b border-slate-100 text-xs sm:text-sm';
+                
+                tr.innerHTML = `
+                    <td class="px-3 py-2.5 text-center font-semibold text-slate-700">${row.month}</td>
+                    <td class="px-3 py-2.5 text-right text-slate-600">${formatNum(row.startBalance)}</td>
+                    <td class="px-3 py-2.5 text-right text-slate-700 font-medium">${formatNum(row.paymentExclVat)}</td>
+                    <td class="px-3 py-2.5 text-right text-indigo-600 font-medium">${formatNum(row.vat)}</td>
+                    <td class="px-3 py-2.5 text-right font-semibold text-sky-800 bg-sky-50/40">${formatNum(row.paymentInclVat)}</td>
+                    <td class="px-3 py-2.5 text-right text-amber-600 font-medium">${formatNum(row.interest)}</td>
+                    <td class="px-3 py-2.5 text-right text-emerald-600 font-medium">${formatNum(row.principal)}</td>
+                    <td class="px-3 py-2.5 text-right font-bold text-slate-800">${formatNum(row.endBalance)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Chart.js Pie/Doughnut Chart (Includes Principal, Interest, and VAT)
+        function renderChart(principal, interest, vat) {
+            const ctx = document.getElementById('paymentChart').getContext('2d');
+
+            if (paymentChartInstance) {
+                paymentChartInstance.destroy();
+            }
+
+            paymentChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ยอดจัดไฟแนนซ์ (เงินต้น)', 'ดอกเบี้ยรวม', 'ภาษี VAT รวม'],
+                    datasets: [{
+                        data: [principal, interest, vat],
+                        backgroundColor: ['#0284c7', '#f59e0b', '#6366f1'],
+                        hoverBackgroundColor: ['#0369a1', '#d97706', '#4f46e5'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Sarabun',
+                                    size: 11
+                                },
+                                padding: 12,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatNum(context.parsed) + ' บาท';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // Export Schedule to CSV
+        function exportCSV() {
+            if (!scheduleData || scheduleData.length === 0) return;
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Thai support in Excel
+            csvContent += "งวดที่,เงินต้นคงเหลือต้นงวด (บาท),ค่างวดก่อน VAT (บาท),VAT (บาท),ค่างวดสุทธิรวม VAT (บาท),ดอกเบี้ย (บาท),ตัดเงินต้น (บาท),เงินต้นคงเหลือปลายงวด (บาท)\n";
+
+            scheduleData.forEach(row => {
+                csvContent += `${row.month},${row.startBalance.toFixed(2)},${row.paymentExclVat.toFixed(2)},${row.vat.toFixed(2)},${row.paymentInclVat.toFixed(2)},${row.interest.toFixed(2)},${row.principal.toFixed(2)},${row.endBalance.toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `ตารางผ่อนชำระ_จัดไฟแนนซ์_VAT_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Run calculation on initial load
+        window.onload = function() {
+            calculateLoan();
+        };
     </script>
 </body>
 </html>
