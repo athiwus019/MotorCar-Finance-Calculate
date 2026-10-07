@@ -75,13 +75,13 @@
                         <i class="fa-solid fa-car text-2xl text-sky-400"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">คำนวณค่างวดจัดไฟแนนซ์รถยนต์-รถมอเตอร์ไซค์ </h1>
-                        <p class="text-xs sm:text-sm text-sky-200">Car & Motorcycle Finance Calculator (VAT Inclusive)</p>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">คำนวณค่างวดจัดไฟแนนซ์รถ</h1>
+                        <p class="text-xs sm:text-sm text-sky-200">Auto & Motorcycle Finance Calculator</p>
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700">
                     <i class="fa-solid fa-shield-halved text-emerald-400"></i>
-                    <span>คำนวณตามมาตรฐานไฟแนนซ์ + VAT</span>
+                    <span>คำนวณตามมาตรฐานไฟแนนซ์</span>
                 </div>
             </div>
         </div>
@@ -124,7 +124,7 @@
                             </div>
                         </div>
 
-                        <!-- Vehicle Price -->
+                        <!-- Vehicle Price (แก้ไขให้ใส่ตัวเลขจำนวนเท่าไหร่ก็ได้) -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                                 ราคารถ (บาท) <span class="text-rose-500">*</span>
@@ -133,13 +133,13 @@
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-baht-sign"></i>
                                 </div>
-                                <input type="number" id="vehiclePrice" value="800000" min="10000" step="5000" required
+                                <input type="number" id="vehiclePrice" value="800000" min="0" step="any" required
                                     class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
-                                    placeholder="เช่น 800,000">
+                                    placeholder="กรอกราคารถ">
                             </div>
                         </div>
 
-                        <!-- Down Payment -->
+                        <!-- Down Payment (แก้ไขให้ใส่ตัวเลขจำนวนเท่าไหร่ก็ได้) -->
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="text-sm font-semibold text-slate-700">
@@ -152,9 +152,9 @@
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                         <i class="fa-solid fa-coins"></i>
                                     </div>
-                                    <input type="number" id="downPaymentValue" value="20" min="0" max="90" step="0.5" required
+                                    <input type="number" id="downPaymentValue" value="20" min="0" step="any" required
                                         class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
-                                        placeholder="เช่น 20">
+                                        placeholder="กรอกเงินดาวน์">
                                 </div>
                                 <div>
                                     <select id="downPaymentUnit" onchange="calculateLoan()"
@@ -182,7 +182,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                         <i class="fa-solid fa-percent"></i>
                                     </div>
-                                    <input type="number" id="interestRate" value="2.5" min="0.01" max="100" step="0.01" required
+                                    <input type="number" id="interestRate" value="2.5" min="0" step="any" required
                                         class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
                                         placeholder="เช่น 2.5">
                                 </div>
@@ -220,20 +220,19 @@
                             </div>
                         </div>
 
-                        <!-- VAT Rate (%) Option -->
-                        <div class="pt-2 border-t border-slate-100">
+                        <!-- VAT Rate (%) -->
+                        <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                                ภาษีมูลค่าเพิ่ม VAT (%) <span class="text-rose-500">*</span>
+                                ภาษีมูลค่าเพิ่ม (VAT %)
                             </label>
                             <div class="relative rounded-xl shadow-sm">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-receipt"></i>
                                 </div>
-                                <input type="number" id="vatRate" value="7" min="0" max="30" step="0.5" required
+                                <input type="number" id="vatRate" value="7" min="0" max="100" step="any"
                                     class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
                                     placeholder="เช่น 7">
                             </div>
-                            <p class="text-xs text-slate-400 mt-1">สัญญาเช่าซื้อไฟแนนซ์ปกติจะมีการคิด VAT 7% จากค่างวด</p>
                         </div>
 
                         <!-- Submit Button -->
@@ -250,7 +249,7 @@
                 
                 <!-- Print Header (Visible only when printing) -->
                 <div class="hidden print:block mb-6 border-b pb-4">
-                    <h1 class="text-2xl font-bold text-slate-900">รายงานตารางผ่อนชำระค่างวดจัดไฟแนนซ์ (รวม VAT)</h1>
+                    <h1 class="text-2xl font-bold text-slate-900">รายงานตารางผ่อนชำระค่างวดจัดไฟแนนซ์</h1>
                     <p class="text-sm text-slate-600">สร้างจากระบบคำนวณค่างวดรถยนต์/รถมอเตอร์ไซค์ - วันที่: <span id="printDate"></span></p>
                 </div>
 
@@ -273,11 +272,11 @@
 
                     <!-- Metrics Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <!-- Monthly Payment Net (Incl. VAT) -->
+                        <!-- Monthly Payment -->
                         <div class="bg-gradient-to-br from-sky-50 to-blue-50/50 rounded-xl p-4 border border-sky-100">
                             <span class="text-xs font-bold uppercase tracking-wider text-sky-700 block mb-1">ค่างวดต่อเดือน (รวม VAT)</span>
-                            <div class="text-2xl font-black text-sky-900" id="resMonthlyPayTotal">0 ฿</div>
-                            <div class="text-xs text-sky-600/80 mt-1" id="resMonthlyPayBreakdown">ก่อน VAT: 0 ฿ | VAT: 0 ฿</div>
+                            <div class="text-2xl font-black text-sky-900" id="resMonthlyPay">0 ฿</div>
+                            <div class="text-xs text-sky-600/80 mt-1" id="resMonthlyPayExVat">ก่อน VAT: 0 ฿</div>
                         </div>
 
                         <!-- Total Interest -->
@@ -287,11 +286,11 @@
                             <div class="text-xs text-amber-600/80 mt-1" id="resSavedInterest">อัตราดอกเบี้ยคงที่ (Flat Rate)</div>
                         </div>
 
-                        <!-- Total Payment Incl. VAT -->
+                        <!-- Total Payment -->
                         <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
-                            <span class="text-xs font-bold uppercase tracking-wider text-slate-600 block mb-1">รวมยอดจ่ายสุทธิทั้งสัญญา</span>
-                            <div class="text-2xl font-black text-slate-800" id="resTotalPaidNet">0 ฿</div>
-                            <div class="text-xs text-slate-500 mt-1" id="resTotalVatSummary">รวมภาษี VAT สะสม: 0 ฿</div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-600 block mb-1">ยอดรวมค่างวดสุทธิ</span>
+                            <div class="text-2xl font-black text-slate-800" id="resTotalPaid">0 ฿</div>
+                            <div class="text-xs text-slate-500 mt-1" id="resTotalMonths">รวม VAT ทั้งหมด: 0 ฿</div>
                         </div>
                     </div>
 
@@ -317,13 +316,13 @@
                             </div>
                             <div class="flex justify-between items-center pb-2 border-b border-slate-100">
                                 <span class="text-slate-500 flex items-center">
-                                    <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block mr-2"></span>
-                                    ภาษีมูลค่าเพิ่ม (VAT) รวม
+                                    <span class="w-3 h-3 rounded-full bg-purple-500 inline-block mr-2"></span>
+                                    ภาษีมูลค่าเพิ่มรวม (VAT)
                                 </span>
                                 <span class="font-bold text-slate-800" id="resVatSummary">0 ฿</span>
                             </div>
                             <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                                <span class="text-slate-500">ดอกเบี้ยลดต้นลดดอกแท้จริง (Effective Rate)</span>
+                                <span class="text-slate-500">อัตราดอกเบี้ยลดต้นลดดอกแท้จริง (Effective Rate)</span>
                                 <span class="font-bold text-slate-800" id="resEffectiveRate">0% ต่อปี</span>
                             </div>
                             <div class="flex justify-between items-center text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
@@ -343,9 +342,9 @@
                 <div>
                     <h2 class="text-lg font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-list-ol text-sky-600 mr-2.5"></i>
-                        ตารางการผ่อนชำระและตัดดอกเบี้ยแบบลดต้นลดดอก (แสดงแยก VAT)
+                        ตารางการผ่อนชำระและตัดดอกเบี้ยแบบลดต้นลดดอก (Effective Rate Table)
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">แสดงสัดส่วนตัดเงินต้น ดอกเบี้ย และ VAT ในแต่ละงวดตามหลักสัญญาเช่าซื้อ (สคบ.)</p>
+                    <p class="text-xs text-slate-500 mt-0.5">แสดงการแบ่งสัดส่วนตัดเงินต้น ดอกเบี้ย และภาษี VAT ในแต่ละงวด</p>
                 </div>
                 <div class="text-xs text-slate-500 font-medium">
                     แสดงทั้งหมด <span id="tableRowsCount" class="font-bold text-sky-600">0</span> งวด
@@ -359,11 +358,11 @@
                         <tr>
                             <th scope="col" class="px-3 py-3 text-center">งวดที่</th>
                             <th scope="col" class="px-3 py-3 text-right">เงินต้นคงเหลือต้นงวด</th>
+                            <th scope="col" class="px-3 py-3 text-right text-emerald-700">ตัดเงินต้น</th>
+                            <th scope="col" class="px-3 py-3 text-right text-amber-700">ดอกเบี้ย</th>
                             <th scope="col" class="px-3 py-3 text-right">ค่างวดก่อน VAT</th>
-                            <th scope="col" class="px-3 py-3 text-right text-indigo-600">VAT</th>
-                            <th scope="col" class="px-3 py-3 text-right text-sky-700">ค่างวดสุทธิ (รวม VAT)</th>
-                            <th scope="col" class="px-3 py-3 text-right text-amber-700">ดอกเบี้ย (Interest)</th>
-                            <th scope="col" class="px-3 py-3 text-right text-emerald-700">ตัดเงินต้น (Principal)</th>
+                            <th scope="col" class="px-3 py-3 text-right text-purple-700">VAT</th>
+                            <th scope="col" class="px-3 py-3 text-right font-bold">ค่างวดสุทธิ</th>
                             <th scope="col" class="px-3 py-3 text-right">เงินต้นคงเหลือปลายงวด</th>
                         </tr>
                     </thead>
@@ -378,7 +377,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 no-print mt-12">
         <div class="max-w-7xl mx-auto px-4">
-            <p>หมายเหตุ: การคำนวณข้างต้นเป็นการคำนวณเบื้องต้นตามมาตรฐานการเช่าซื้อรถยนต์/รถมอเตอร์ไซค์ (รวมภาษีมูลค่าเพิ่ม VAT) ซึ่งยังไม่รวมประกันภัย พรบ. และค่าธรรมเนียมอื่นๆ</p>
+            <p>หมายเหตุ: การคำนวณข้างต้นเป็นการคำนวณเบื้องต้นตามมาตรฐานการเช่าซื้อรถยนต์/รถมอเตอร์ไซค์ ซึ่งยังไม่รวมประกันภัย พรบ. และค่าธรรมเนียมอื่นๆ</p>
             <p class="mt-1">ระบบคำนวณค่างวดจัดไฟแนนซ์รถยนต์และรถมอเตอร์ไซค์ &copy; 2026</p>
         </div>
     </footer>
@@ -409,7 +408,7 @@
                 document.getElementById('rateUnit').value = 'year';
             } else {
                 priceInput.value = '65000';
-                rateInput.value = '1.25'; // อัตราดอกเบี้ยมอเตอร์ไซค์มักนิยมคิดเป็น % ต่อเดือน
+                rateInput.value = '1.25';
                 document.getElementById('rateUnit').value = 'month';
                 termInput.value = '30';
                 termUnit.value = 'months';
@@ -429,8 +428,8 @@
             year: 'numeric', month: 'long', day: 'numeric'
         });
 
-        // Calculate Effective Interest Rate (IRR / Effective Rate) from Flat Rate & Term
-        function calculateEffectiveRate(loanAmount, monthlyPMTExclVat, totalMonths) {
+        // Calculate Effective Interest Rate (IRR / Effective Rate)
+        function calculateEffectiveRate(loanAmount, monthlyPMTExVat, totalMonths) {
             let low = 0.00001;
             let high = 1.0;
             let monthlyIrr = 0;
@@ -439,14 +438,14 @@
                 let mid = (low + high) / 2;
                 let pmtCalc = loanAmount * (mid * Math.pow(1 + mid, totalMonths)) / (Math.pow(1 + mid, totalMonths) - 1);
                 
-                if (pmtCalc > monthlyPMTExclVat) {
+                if (pmtCalc > monthlyPMTExVat) {
                     high = mid;
                 } else {
                     low = mid;
                 }
             }
             monthlyIrr = (low + high) / 2;
-            return monthlyIrr; // Return monthly IRR rate
+            return monthlyIrr;
         }
 
         // Main Calculation Function
@@ -457,10 +456,10 @@
             const downUnit = document.getElementById('downPaymentUnit').value;
             
             const rateInput = parseFloat(document.getElementById('interestRate').value) || 0;
-            const rateUnit = document.getElementById('rateUnit').value; // 'year' หรือ 'month'
+            const rateUnit = document.getElementById('rateUnit').value;
             const termInput = parseFloat(document.getElementById('loanTerm').value) || 0;
             const termUnit = document.getElementById('termUnit').value;
-            const vatPct = parseFloat(document.getElementById('vatRate').value) || 0;
+            const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
 
             if (vehiclePrice <= 0 || termInput <= 0) {
                 return;
@@ -491,35 +490,33 @@
             // Calculate Annual Flat Rate
             const annualFlatRate = rateUnit === 'year' ? rateInput : rateInput * 12;
 
-            // Finance Flat Rate Calculation (Excluding VAT)
+            // Finance Calculation (Flat Rate)
             const totalInterestPaid = loanAmount * (annualFlatRate / 100) * totalYears;
-            const totalPaidExclVat = loanAmount + totalInterestPaid;
-            const monthlyPaymentExclVat = totalPaidExclVat / totalMonths;
+            const totalBeforeVat = loanAmount + totalInterestPaid;
+            const monthlyPaymentExVat = totalBeforeVat / totalMonths;
 
             // VAT Calculations
-            const monthlyVatAmount = monthlyPaymentExclVat * (vatPct / 100);
-            const monthlyPaymentInclVat = monthlyPaymentExclVat + monthlyVatAmount;
-            
-            const totalVatPaid = monthlyVatAmount * totalMonths;
-            const totalPaidInclVat = totalPaidExclVat + totalVatPaid;
+            const monthlyVat = monthlyPaymentExVat * (vatRate / 100);
+            const monthlyPaymentIncVat = monthlyPaymentExVat + monthlyVat;
+            const totalVatPaid = monthlyVat * totalMonths;
+            const totalPaidIncVat = monthlyPaymentIncVat * totalMonths;
 
-            // Calculate Effective Annual Interest Rate for Amortization Schedule (สคบ. Standard)
-            const monthlyEffectiveRate = calculateEffectiveRate(loanAmount, monthlyPaymentExclVat, totalMonths);
+            // Effective Rate calculation
+            const monthlyEffectiveRate = calculateEffectiveRate(loanAmount, monthlyPaymentExVat, totalMonths);
             const annualEffectiveRate = monthlyEffectiveRate * 12 * 100;
 
-            // Generate Effective Rate Amortization Schedule
+            // Generate Schedule
             scheduleData = [];
             let currentBalance = loanAmount;
 
             for (let month = 1; month <= totalMonths; month++) {
                 let startBalance = currentBalance;
                 let monthlyInterest = startBalance * monthlyEffectiveRate;
-                let principalPaid = monthlyPaymentExclVat - monthlyInterest;
+                let principalPaid = monthlyPaymentExVat - monthlyInterest;
 
                 if (month === totalMonths) {
-                    // Last month adjustment to clear remaining exact balance
                     principalPaid = startBalance;
-                    monthlyInterest = monthlyPaymentExclVat - principalPaid;
+                    monthlyInterest = monthlyPaymentExVat - principalPaid;
                     currentBalance = 0;
                 } else {
                     currentBalance = startBalance - principalPaid;
@@ -528,16 +525,16 @@
                 scheduleData.push({
                     month: month,
                     startBalance: startBalance,
-                    paymentExclVat: monthlyPaymentExclVat,
-                    vat: monthlyVatAmount,
-                    paymentInclVat: monthlyPaymentInclVat,
-                    interest: monthlyInterest,
                     principal: principalPaid,
+                    interest: monthlyInterest,
+                    paymentExVat: monthlyPaymentExVat,
+                    vat: monthlyVat,
+                    paymentIncVat: monthlyPaymentIncVat,
                     endBalance: Math.max(0, currentBalance)
                 });
             }
 
-            // Calculations for UI Display
+            // Display UI Summary
             const actualYears = Math.floor(totalMonths / 12);
             const remainingMonths = totalMonths % 12;
             let termString = "";
@@ -545,15 +542,14 @@
             if (remainingMonths > 0) termString += `${remainingMonths} เดือน`;
             if (totalMonths === 0) termString = "0 เดือน";
 
-            // Update DOM Results Summary
-            document.getElementById('resMonthlyPayTotal').innerText = formatNum(monthlyPaymentInclVat) + ' ฿';
-            document.getElementById('resMonthlyPayBreakdown').innerText = `ก่อน VAT: ${formatNum(monthlyPaymentExclVat)} ฿ | VAT (${vatPct}%): ${formatNum(monthlyVatAmount)} ฿`;
+            document.getElementById('resMonthlyPay').innerText = formatNum(monthlyPaymentIncVat) + ' ฿';
+            document.getElementById('resMonthlyPayExVat').innerText = `ก่อน VAT: ${formatNum(monthlyPaymentExVat)} + VAT(${vatRate}\%):${formatNum(monthlyVat)} ฿`;
 
             document.getElementById('resTotalInterest').innerText = formatNum(totalInterestPaid) + ' ฿';
             document.getElementById('resSavedInterest').innerText = `คิดเป็น ${annualFlatRate.toFixed(2)}% ต่อปี (Flat Rate)`;
 
-            document.getElementById('resTotalPaidNet').innerText = formatNum(totalPaidInclVat) + ' ฿';
-            document.getElementById('resTotalVatSummary').innerText = `รวม VAT ${vatPct}% สะสม: ${formatNum(totalVatPaid)} ฿ (${totalMonths} งวด)`;
+            document.getElementById('resTotalPaid').innerText = formatNum(totalPaidIncVat) + ' ฿';
+            document.getElementById('resTotalMonths').innerText = `รวม VAT ทั้งหมด: ${formatNum(totalVatPaid)} ฿ (${totalMonths} งวด)`;
 
             document.getElementById('resPrincipalSummary').innerText = formatNum(loanAmount) + ' ฿';
             document.getElementById('resInterestSummary').innerText = formatNum(totalInterestPaid) + ' ฿';
@@ -562,10 +558,8 @@
             document.getElementById('resEffectiveRate').innerText = `~${annualEffectiveRate.toFixed(2)}% ต่อปี`;
             document.getElementById('resActualTerm').innerText = termString;
 
-            // Render Table
+            // Render Table & Chart
             renderScheduleTable(scheduleData);
-
-            // Render Chart
             renderChart(loanAmount, totalInterestPaid, totalVatPaid);
         }
 
@@ -582,97 +576,4 @@
                 tr.innerHTML = `
                     <td class="px-3 py-2.5 text-center font-semibold text-slate-700">${row.month}</td>
                     <td class="px-3 py-2.5 text-right text-slate-600">${formatNum(row.startBalance)}</td>
-                    <td class="px-3 py-2.5 text-right text-slate-700 font-medium">${formatNum(row.paymentExclVat)}</td>
-                    <td class="px-3 py-2.5 text-right text-indigo-600 font-medium">${formatNum(row.vat)}</td>
-                    <td class="px-3 py-2.5 text-right font-semibold text-sky-800 bg-sky-50/40">${formatNum(row.paymentInclVat)}</td>
-                    <td class="px-3 py-2.5 text-right text-amber-600 font-medium">${formatNum(row.interest)}</td>
-                    <td class="px-3 py-2.5 text-right text-emerald-600 font-medium">${formatNum(row.principal)}</td>
-                    <td class="px-3 py-2.5 text-right font-bold text-slate-800">${formatNum(row.endBalance)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Render Chart.js Pie/Doughnut Chart (Includes Principal, Interest, and VAT)
-        function renderChart(principal, interest, vat) {
-            const ctx = document.getElementById('paymentChart').getContext('2d');
-
-            if (paymentChartInstance) {
-                paymentChartInstance.destroy();
-            }
-
-            paymentChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['ยอดจัดไฟแนนซ์ (เงินต้น)', 'ดอกเบี้ยรวม', 'ภาษี VAT รวม'],
-                    datasets: [{
-                        data: [principal, interest, vat],
-                        backgroundColor: ['#0284c7', '#f59e0b', '#6366f1'],
-                        hoverBackgroundColor: ['#0369a1', '#d97706', '#4f46e5'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    family: 'Sarabun',
-                                    size: 11
-                                },
-                                padding: 12,
-                                usePointStyle: true
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += formatNum(context.parsed) + ' บาท';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '65%'
-                }
-            });
-        }
-
-        // Export Schedule to CSV
-        function exportCSV() {
-            if (!scheduleData || scheduleData.length === 0) return;
-
-            let csvContent = "\uFEFF"; // UTF-8 BOM for Thai support in Excel
-            csvContent += "งวดที่,เงินต้นคงเหลือต้นงวด (บาท),ค่างวดก่อน VAT (บาท),VAT (บาท),ค่างวดสุทธิรวม VAT (บาท),ดอกเบี้ย (บาท),ตัดเงินต้น (บาท),เงินต้นคงเหลือปลายงวด (บาท)\n";
-
-            scheduleData.forEach(row => {
-                csvContent += `${row.month},${row.startBalance.toFixed(2)},${row.paymentExclVat.toFixed(2)},${row.vat.toFixed(2)},${row.paymentInclVat.toFixed(2)},${row.interest.toFixed(2)},${row.principal.toFixed(2)},${row.endBalance.toFixed(2)}\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `ตารางผ่อนชำระ_จัดไฟแนนซ์_VAT_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Run calculation on initial load
-        window.onload = function() {
-            calculateLoan();
-        };
-    </script>
-</body>
-</html>
+                    <td class="px-3 py-2.5 text-right text-
