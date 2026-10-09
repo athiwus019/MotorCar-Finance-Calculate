@@ -133,7 +133,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-baht-sign"></i>
                                 </div>
-                                <input type="number" id="vehiclePrice" value="800000" min="10000" step="00" required
+                                <input type="number" id="vehiclePrice" value="800000" min="0" step="any" required
                                     class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
                                     placeholder="เช่น 800,000">
                             </div>
@@ -152,7 +152,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                         <i class="fa-solid fa-coins"></i>
                                     </div>
-                                    <input type="number" id="downPaymentValue" value="20" min="0" max="90" step="0.5" required
+                                    <input type="number" id="downPaymentValue" value="20" min="0" step="any" required
                                         class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
                                         placeholder="เช่น 20">
                                 </div>
@@ -172,6 +172,27 @@
                             <span class="font-bold text-sky-700 text-base" id="loanAmountDisplay">0 บาท</span>
                         </div>
 
+                        <!-- Interest Calculation Method (เพิ่มส่วนเลือกประเภทดอกเบี้ย) -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                รูปแบบดอกเบี้ย <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="interestType" value="fixed" checked onchange="calculateLoan()" class="peer sr-only">
+                                    <div class="p-2.5 text-center rounded-xl border border-slate-200 bg-slate-50 peer-checked:bg-sky-50 peer-checked:border-sky-500 peer-checked:text-sky-700 font-semibold text-xs transition-all">
+                                        ดอกเบี้ยคงที่ (Fixed Rate)
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="interestType" value="effective" onchange="calculateLoan()" class="peer sr-only">
+                                    <div class="p-2.5 text-center rounded-xl border border-slate-200 bg-slate-50 peer-checked:bg-sky-50 peer-checked:border-sky-500 peer-checked:text-sky-700 font-semibold text-xs transition-all">
+                                        ลดต้นลดดอก (Effective)
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- Interest Rate -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">
@@ -182,15 +203,15 @@
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                         <i class="fa-solid fa-percent"></i>
                                     </div>
-                                    <input type="number" id="interestRate" value="2.5" min="0.01" max="100" step="0.01" required
+                                    <input type="number" id="interestRate" value="2.5" min="0" step="any" required
                                         class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
                                         placeholder="เช่น 2.5">
                                 </div>
                                 <div>
                                     <select id="rateUnit" onchange="calculateLoan()"
                                         class="block w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-sm font-semibold transition-all">
-                                        <option value="year" selected>ต่อปี (Flat)</option>
-                                        <option value="month">ต่อเดือน (Flat)</option>
+                                        <option value="year" selected>ต่อปี</option>
+                                        <option value="month">ต่อเดือน</option>
                                     </select>
                                 </div>
                             </div>
@@ -229,7 +250,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-receipt"></i>
                                 </div>
-                                <input type="number" id="vatRate" value="7" min="0" max="30" step="0.5" required
+                                <input type="number" id="vatRate" value="7" min="0" step="any" required
                                     class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-800 text-base transition-all font-medium"
                                     placeholder="เช่น 7">
                             </div>
@@ -284,7 +305,7 @@
                         <div class="bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl p-4 border border-amber-100">
                             <span class="text-xs font-bold uppercase tracking-wider text-amber-700 block mb-1">ดอกเบี้ยรวมทั้งหมด</span>
                             <div class="text-2xl font-black text-amber-900" id="resTotalInterest">0 ฿</div>
-                            <div class="text-xs text-amber-600/80 mt-1" id="resSavedInterest">อัตราดอกเบี้ยคงที่ (Flat Rate)</div>
+                            <div class="text-xs text-amber-600/80 mt-1" id="resSavedInterest">อัตราดอกเบี้ยคงที่ (Fixed Rate)</div>
                         </div>
 
                         <!-- Total Payment Incl. VAT -->
@@ -409,7 +430,7 @@
                 document.getElementById('rateUnit').value = 'year';
             } else {
                 priceInput.value = '65000';
-                rateInput.value = '1.25'; // อัตราดอกเบี้ยมอเตอร์ไซค์มักนิยมคิดเป็น % ต่อเดือน
+                rateInput.value = '1.25';
                 document.getElementById('rateUnit').value = 'month';
                 termInput.value = '30';
                 termUnit.value = 'months';
@@ -446,7 +467,7 @@
                 }
             }
             monthlyIrr = (low + high) / 2;
-            return monthlyIrr; // Return monthly IRR rate
+            return monthlyIrr;
         }
 
         // Main Calculation Function
@@ -456,6 +477,7 @@
             const downValue = parseFloat(document.getElementById('downPaymentValue').value) || 0;
             const downUnit = document.getElementById('downPaymentUnit').value;
             
+            const interestType = document.querySelector('input[name="interestType"]:checked').value; // 'fixed' หรือ 'effective'
             const rateInput = parseFloat(document.getElementById('interestRate').value) || 0;
             const rateUnit = document.getElementById('rateUnit').value; // 'year' หรือ 'month'
             const termInput = parseFloat(document.getElementById('loanTerm').value) || 0;
@@ -488,13 +510,36 @@
             const totalMonths = termUnit === 'years' ? Math.round(termInput * 12) : Math.round(termInput);
             const totalYears = totalMonths / 12;
 
-            // Calculate Annual Flat Rate
-            const annualFlatRate = rateUnit === 'year' ? rateInput : rateInput * 12;
+            let totalInterestPaid = 0;
+            let totalPaidExclVat = 0;
+            let monthlyPaymentExclVat = 0;
+            let monthlyEffectiveRate = 0;
+            let annualEffectiveRate = 0;
 
-            // Finance Flat Rate Calculation (Excluding VAT)
-            const totalInterestPaid = loanAmount * (annualFlatRate / 100) * totalYears;
-            const totalPaidExclVat = loanAmount + totalInterestPaid;
-            const monthlyPaymentExclVat = totalPaidExclVat / totalMonths;
+            if (interestType === 'fixed') {
+                // Fixed Rate (Flat Rate)
+                const annualFlatRate = rateUnit === 'year' ? rateInput : rateInput * 12;
+                totalInterestPaid = loanAmount * (annualFlatRate / 100) * totalYears;
+                totalPaidExclVat = loanAmount + totalInterestPaid;
+                monthlyPaymentExclVat = totalPaidExclVat / totalMonths;
+
+                monthlyEffectiveRate = calculateEffectiveRate(loanAmount, monthlyPaymentExclVat, totalMonths);
+                annualEffectiveRate = monthlyEffectiveRate * 12 * 100;
+
+                document.getElementById('resSavedInterest').innerText = `อัตราดอกเบี้ยคงที่ (${annualFlatRate.toFixed(2)}% ต่อปี)`;
+            } else {
+                // Effective Rate (Declining Balance)
+                const annualRate = rateUnit === 'year' ? rateInput : rateInput * 12;
+                monthlyEffectiveRate = (annualRate / 100) / 12;
+                annualEffectiveRate = annualRate;
+
+                // PMT Formula: P * r * (1+r)^n / ((1+r)^n - 1)
+                monthlyPaymentExclVat = loanAmount * (monthlyEffectiveRate * Math.pow(1 + monthlyEffectiveRate, totalMonths)) / (Math.pow(1 + monthlyEffectiveRate, totalMonths) - 1);
+                totalPaidExclVat = monthlyPaymentExclVat * totalMonths;
+                totalInterestPaid = totalPaidExclVat - loanAmount;
+
+                document.getElementById('resSavedInterest').innerText = `อัตราดอกเบี้ยลดต้นลดดอก (${annualRate.toFixed(2)}% ต่อปี)`;
+            }
 
             // VAT Calculations
             const monthlyVatAmount = monthlyPaymentExclVat * (vatPct / 100);
@@ -503,11 +548,7 @@
             const totalVatPaid = monthlyVatAmount * totalMonths;
             const totalPaidInclVat = totalPaidExclVat + totalVatPaid;
 
-            // Calculate Effective Annual Interest Rate for Amortization Schedule (สคบ. Standard)
-            const monthlyEffectiveRate = calculateEffectiveRate(loanAmount, monthlyPaymentExclVat, totalMonths);
-            const annualEffectiveRate = monthlyEffectiveRate * 12 * 100;
-
-            // Generate Effective Rate Amortization Schedule
+            // Generate Amortization Schedule
             scheduleData = [];
             let currentBalance = loanAmount;
 
@@ -517,7 +558,6 @@
                 let principalPaid = monthlyPaymentExclVat - monthlyInterest;
 
                 if (month === totalMonths) {
-                    // Last month adjustment to clear remaining exact balance
                     principalPaid = startBalance;
                     monthlyInterest = monthlyPaymentExclVat - principalPaid;
                     currentBalance = 0;
@@ -550,7 +590,6 @@
             document.getElementById('resMonthlyPayBreakdown').innerText = `ก่อน VAT: ${formatNum(monthlyPaymentExclVat)} ฿ | VAT (${vatPct}%): ${formatNum(monthlyVatAmount)} ฿`;
 
             document.getElementById('resTotalInterest').innerText = formatNum(totalInterestPaid) + ' ฿';
-            document.getElementById('resSavedInterest').innerText = `คิดเป็น ${annualFlatRate.toFixed(2)}% ต่อปี (Flat Rate)`;
 
             document.getElementById('resTotalPaidNet').innerText = formatNum(totalPaidInclVat) + ' ฿';
             document.getElementById('resTotalVatSummary').innerText = `รวม VAT ${vatPct}% สะสม: ${formatNum(totalVatPaid)} ฿ (${totalMonths} งวด)`;
